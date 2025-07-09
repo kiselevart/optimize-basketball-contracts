@@ -1,0 +1,115 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=1in,top=0.5in]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{automata,positioning,arrows.meta}
+\usepackage{enumitem}
+
+% Formatting settings
+\setlength{\parindent}{0pt}
+\setlist[enumerate]{itemsep=0.3em, topsep=0.5em}
+
+\newcommand{\vsp}{\vspace{0.5em}}
+\newcommand{\bsp}{\vspace{1em}}
+\newcommand{\ruler}{
+    \vspace{1em}
+    \hrule
+    \vspace{1em}
+}
+\newcommand{\bsq}{\hfill $\blacksquare$}
+
+\begin{document}
+
+{\Large \textbf{ICMA 346 Project Report: The Tennessee Pterodactyls}}\\
+{\normalsize Artem Kiselev, 6580846}
+
+\section*{Problem Requierments and Formulation}
+We have a yearly budget of \$50~million to sign free agents from the following table:
+
+\begin{table}[htbp]
+\centering
+\renewcommand{\arraystretch}{1}
+\begin{tabular}{rlcccccc}
+\hline
+& \textbf{Player} & \textbf{Position} & \textbf{Points} & \textbf{Rebounds} & \textbf{Assists} & \textbf{Minutes} & \textbf{Salary (\$M)} \\
+\hline
+1  & Mack Madonna        & Back court  & 14.7 & 4.4  & 9.3 & 40.3 & 8.2  \\
+2  & Darrell Boards      & Front court & 12.6 & 10.6 & 2.1 & 34.5 & 6.5  \\
+3  & Silk Curry          & Back court  & 13.5 & 8.7  & 1.7 & 29.3 & 5.2  \\
+4  & Ramon Dion          & Back court  & 27.1 & 7.1  & 4.5 & 42.5 & 16.4 \\
+5  & Joe Eastcoast       & Back court  & 18.1 & 7.5  & 5.1 & 41.0 & 14.3 \\
+6  & Abdul Famous        & Front court & 22.8 & 9.5  & 2.4 & 38.5 & 23.5 \\
+7  & Hiram Grant         & Front court & 9.3  & 12.2 & 3.5 & 31.5 & 4.7  \\
+8  & Antoine Roadman     & Front court & 10.2 & 12.6 & 1.8 & 44.4 & 7.1  \\
+9  & Fred Westcoast      & Front court & 16.9 & 2.5  & 11.4 & 42.7 & 15.8 \\
+10 & Magic Jordan        & Back court  & 28.5 & 6.5  & 1.3 & 38.1 & 26.4 \\
+11 & Barry Bird          & Front court & 24.8 & 8.6  & 6.9 & 42.6 & 19.5 \\
+12 & Grant Hall          & Front court & 11.3 & 12.5 & 3.2 & 39.5 & 8.6  \\
+\hline
+\end{tabular}
+\end{table}
+
+\vspace{-0.5em}
+The requirements are:
+\begin{enumerate}
+  \item Sign exactly 5 players.
+  \item Total points per game $\ge80$.
+  \item Total rebounds per game $\ge40$.
+  \item Total assists per game $\ge25$.
+  \item Total minutes per game $\ge190$.
+  \item At most 2 front court and at most 3 back court players. As we must sign 5 players, we can simplify this to just require exactly 2 front court players.
+  \item Select the group that satisfies requirements 1-6 at minimum total salary cost.
+\end{enumerate}
+
+Define a vector $\bm{x} \in \{0, 1\}^{12}$, consisting of the following binary decision variables:
+$$x_i=\begin{cases}1,&\text{if player }i\text{ is signed,}\\0,&\text{otherwise,}\end{cases}\quad i=1,\dots,12.$$ 
+Let
+$\bm{s},\bm{p},\bm{r},\bm{a},\bm{m}\in\mathbb{R}_{+}^{12}$ be the salary, points, rebounds, assists, minutes vectors, and
+$\bm{f}\in\{0,1\}^{12}$ indicate front court (1) or back court (0).
+
+\vspace{1em}
+We can now formulate the integer linear programming model:
+\[
+\begin{aligned}
+\text{minimize} \quad & z=\bm{s}^\top\bm{x}\\
+\text{subject to}\quad
+&\bm{1}^\top\bm{x}=5,\\
+&\bm{p}^\top\bm{x}\ge80,\\
+&\bm{r}^\top\bm{x}\ge40,\\
+&\bm{a}^\top\bm{x}\ge25,\\
+&\bm{m}^\top\bm{x}\ge190,\\
+&\bm{f}^\top\bm{x}=2, \\
+&\bm{x}, \bm{f} \in \{0,1\}^{12}, \\
+&\bm{s}, \bm{p}, \bm{r}, \bm{a}, \bm{m} \in \mathbb{R}_+^{12}.
+\end{aligned}
+\]
+
+\section*{Linear Programming Solution}
+
+\textbf{Question A.} 
+Formulate an integer linear programming model (ILP) to help the general manager and coach determine which players they should sign and solve it by using the computer.
+
+\ruler
+
+\textbf{Ans A.}
+
+\ruler
+
+\vsp
+
+\textbf{Question B.} 
+Is the money provided by the owner sufficient to sign the group of players identified in (A)? If not, reformulate the model so that the available funds are a constratint and the objective is to maximize the average points of the group.
+
+\ruler
+
+\textbf{Ans B.}
+
+\section*{Answers to Case Questions}
+
+\section*{Sensitivity Analysis}
+
+\section*{Insights from Sensitivity Analysis}
+
+\end{document}
