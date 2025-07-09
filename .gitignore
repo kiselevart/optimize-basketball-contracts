@@ -1,0 +1,9 @@
+# latex binaries
+*.aux
+*.gz
+*.fls
+*.fdb_latexmk
+*.log
+
+# venv
+/.venv
