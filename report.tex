@@ -60,7 +60,7 @@ The requirements are:
   \item Total rebounds per game $\ge40$.
   \item Total assists per game $\ge25$.
   \item Total minutes per game $\ge190$.
-  \item At most 2 front court and at most 3 back court players. As we must sign 5 players, we can simplify this to just require exactly 2 front court players.
+  \item At most 2 front court and at most 3 back court players. As we must sign 5 players, we can simplify this to just require exactly 2 front court players, since the 3 back court player requirement will naturally follow.
   \item Select the group that satisfies requirements 1-6 at minimum total salary cost.
 \end{enumerate}
 
@@ -87,7 +87,7 @@ We can now formulate the integer linear programming model:
 \end{aligned}
 \]
 
-\section{Linear Programming Solution}
+\section{Binary Linear Programming Solution}
 
 \subsection{Raw CPLEX Output}
 \begin{verbatim}
@@ -142,11 +142,7 @@ We can see that we have reached a status of an optimal solution, and our objecti
     \label{tab:team_totals}
 \end{table}
 
-\textbf{Notes:} We can see that Ramon Dion is an incredibly valuable player in terms of scoring output especially when comparing him to the other highly scoring free agents. Mack Madonna, Hiram Grant, and Grant Hall are very valuable all around players with standout assists and rebound statistics respectively, with very cheap salaries in comparison to other agents, making them very cost effective. 
-
-\vsp
-
-Joe Eastcoast is a decent jack of all trades player with a farily expensive salary in comparison, likely meaning he was selected specifically to fulfill the constraints, despite not being as cost-effective as the other players. Due to this, he seems to be the weak link in this roster in terms of value for money, so another player could be a better choice if we are willing to relax some constraints.
+\textbf{Notes:} We can see that Ramon Dion is an incredibly valuable player in terms of scoring output especially when comparing him to the other highly scoring free agents. Mack Madonna, Hiram Grant, and Grant Hall are very valuable all around players with standout assists and rebound statistics respectively, with very cheap salaries in comparison to other agents, making them very cost effective. Lastly, Joe Eastcoast is just a solid jack of all trades player, with decent stats in every category.
 
 \section{Answers to Case Questions}
 
@@ -239,8 +235,67 @@ Once again, we have reached a status of an optimal solution, and our objective f
 \textbf{Notes:} We have kept approximately the same roster, except for replacing Grant Hill with Silk Curry, likely due to the difference in point scoring and salary letting us reach the budget requirements. As a result, our point scoring is slightly up, however the rest of the statistics have slightly suffered, especially the number of rebounds and minutes played. Furthermore, we now have a more unbalanced roster with 4 back court players and only 1 front court player.
 
 \section{Sensitivity Analysis}
+Since sensitivity analysis must be performed on the LP relaxation, we must change the binary variables to continous ones between 0 and 1. I am assuming that we should do the sensitivity analysis on the original/first LP formulation.
 
+\subsection{Raw CPLEX Output}
+\begin{verbatim}
+solution for: tennessee_pterodactlys_LP
+objective: 47.4889
+status: OPTIMAL_SOLUTION(2)
+Mack Madonna=1.000
+Darrell Boards=0.151
+Silk Curry=1.000
+Ramon Dion=1.000
+Joe Eastcoast=0.000
+Hiram Grant=0.656
+Antoine Roadman=0.647
+Fred Westcoast=0.435
+Barry Bird=0.111
+\end{verbatim}
 
+\newpage
+\subsection{Interpretation}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{rllcccccc}
+        \hline
+        & \textbf{Player} & \textbf{Contrib} & \textbf{Pos} & \textbf{Pts} & \textbf{Rbds} & \textbf{Asts} & \textbf{Mins} & \textbf{Salary (\$M)} \\
+        \hline
+        % Values are manually entered based on the LP solution provided
+        1  & Mack Madonna    & 1.000                 & Back court        & 14.7            & 4.4               & 9.3              & 40.3             & 8.2                   \\
+        2  & Darrell Boards  & 0.151                 & Front court       & 12.6            & 10.6              & 2.1              & 34.5             & 6.5                   \\
+        3  & Silk Curry      & 1.000                 & Back court        & 13.5            & 8.7               & 1.7              & 29.3             & 5.2                   \\
+        4  & Ramon Dion      & 1.000                 & Back court        & 27.1            & 7.1               & 4.5              & 42.5             & 16.4                  \\
+        % Joe Eastcoast=0.000 (not included as contribution is zero)
+        7  & Hiram Grant     & 0.656                 & Front court       & 9.3             & 12.2              & 3.5              & 31.5             & 4.7                   \\
+        8  & Antoine Roadman & 0.647                 & Front court       & 10.2            & 12.6              & 1.8              & 44.4             & 7.1                   \\
+        9  & Fred Westcoast  & 0.435                 & Front court       & 16.9            & 2.5               & 11.4             & 42.7             & 15.8                  \\
+        11 & Barry Bird      & 0.111                 & Front court       & 24.8            & 8.6               & 6.9              & 42.6             & 19.5                  \\
+        \hline
+    \end{tabular}
+    \caption{Player Stats for LP Relaxation}
+    \label{tab:selected_players_LP}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \renewcommand{\arraystretch}{1.2} % Consistent vertical spacing
+    \begin{tabular}{lc}
+        \hline
+        \textbf{Statistic}          & \textbf{Total} \\
+        \hline
+        Total Salary (Objective)    & \$47.49M         \\ % Objective directly from CPLEX output
+        Total Points                & 80.00          \\ % Calculated: (1*14.7) + (0.151*12.6) + (1*13.5) + (1*27.1) + (0.656*9.3) + (0.647*10.2) + (0.435*16.9) + (0.111*24.8) = 80.00 (approx)
+        Total Rebounds              & 40.00          \\ % Calculated: (1*4.4) + (0.151*10.6) + (1*8.7) + (1*7.1) + (0.656*12.2) + (0.647*12.6) + (0.435*2.5) + (0.111*8.6) = 40.00 (approx)
+        Total Assists               & 25.00          \\ % Calculated: (1*9.3) + (0.151*2.1) + (1*1.7) + (1*4.5) + (0.656*3.5) + (0.647*1.8) + (0.435*11.4) + (0.111*6.9) = 25.00 (approx)
+        Total Minutes               & 190.00         \\ % Calculated: (1*40.3) + (0.151*34.5) + (1*29.3) + (1*42.5) + (0.656*31.5) + (0.647*44.4) + (0.435*42.7) + (0.111*42.6) = 190.00 (approx)
+        Total Front Court Players   & 2.00           \\ % Calculated: (0.151*1) + (0.656*1) + (0.647*1) + (0.435*1) + (0.111*1) = 2.00 (approx)
+        Total Number of Players     & 5.00           \\ % Calculated: Sum of all contributions (1+0.151+1+1+0.656+0.647+0.435+0.111) = 5.00
+        \hline
+    \end{tabular}
+    \caption{Aggregated Stats for LP Relaxation}
+    \label{tab:team_totals_LP}
+\end{table}
 \section{Insights from Sensitivity Analysis}
 
 \end{document}
