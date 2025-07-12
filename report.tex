@@ -25,7 +25,7 @@
 {\Large \textbf{ICMA 346 Project Report: The Tennessee Pterodactyls}}\\
 {\normalsize Artem Kiselev, 6580846}
 
-\section*{Problem Requierments and Formulation}
+\section{Problem Requierments and Formulation}
 We have a yearly budget of \$50~million to sign free agents from the following table:
 
 \begin{table}[htbp]
@@ -49,6 +49,7 @@ We have a yearly budget of \$50~million to sign free agents from the following t
 12 & Grant Hall          & Front court & 11.3 & 12.5 & 3.2 & 39.5 & 8.6  \\
 \hline
 \end{tabular}
+\caption{Free Agent Information}
 \end{table}
 
 \vspace{-0.5em}
@@ -86,30 +87,160 @@ We can now formulate the integer linear programming model:
 \end{aligned}
 \]
 
-\section*{Linear Programming Solution}
+\section{Linear Programming Solution}
+
+\subsection{Raw CPLEX Output}
+\begin{verbatim}
+solution for: tennessee_pterodactlys
+objective: 52.2
+status: OPTIMAL_SOLUTION(2)
+Mack Madonna=1
+Ramon Dion=1
+Joe Eastcoast=1
+Hiram Grant=1
+Grant Hall=1
+\end{verbatim}
+
+\subsection{Interpretation}
+We can see that we have reached a status of an optimal solution, and our objective function (minimum cost) is 52.2, with the listed five players having a binary value of 1, thus being selected. Below are two tables showing the statistics of the selected players and their aggregate stats:
+
+\begin{table}[h!]
+    \centering
+    \renewcommand{\arraystretch}{1.2} % Adjust vertical spacing as in your example
+    \begin{tabular}{rlcccccc}
+        \hline
+        & \textbf{Player} & \textbf{Position} & \textbf{Points} & \textbf{Rebounds} & \textbf{Assists} & \textbf{Minutes} & \textbf{Salary (\$M)} \\
+        \hline
+        % Using the indices from the original table for selected players
+        1 & Mack Madonna    & Back court        & 14.7            & 4.4               & 9.3              & 40.3             & 8.2                   \\
+        4 & Ramon Dion      & Back court        & 27.1            & 7.1               & 4.5              & 42.5             & 16.4                  \\
+        5 & Joe Eastcoast   & Back court        & 18.1            & 7.5               & 5.1              & 41.0             & 14.3                  \\
+        7 & Hiram Grant     & Front court       & 9.3             & 12.2              & 3.5              & 31.5             & 4.7                   \\
+        12 & Grant Hall     & Front court       & 11.3            & 12.5              & 3.2              & 39.5             & 8.6                   \\
+        \hline
+    \end{tabular}
+    \caption{Player Stats}
+    \label{tab:selected_players}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \renewcommand{\arraystretch}{1.2} % Consistent vertical spacing
+    \begin{tabular}{lc}
+        \hline
+        \textbf{Statistic}          & \textbf{Total} \\
+        \hline
+        Total Points (Objective)    & 80.50          \\
+        Total Salary                & \$52.20M         \\
+        Total Rebounds              & 43.7           \\
+        Total Assists               & 25.6           \\
+        Total Minutes               & 194.8          \\
+        Total Front Court Players   & 2              \\
+        \hline
+    \end{tabular}
+    \caption{Aggregate Stats}
+    \label{tab:team_totals}
+\end{table}
+
+\textbf{Notes:} We can see that Ramon Dion is an incredibly valuable player in terms of scoring output especially when comparing him to the other highly scoring free agents. Mack Madonna, Hiram Grant, and Grant Hall are very valuable all around players with standout assists and rebound statistics respectively, with very cheap salaries in comparison to other agents, making them very cost effective. 
+
+\vsp
+
+Joe Eastcoast is a decent jack of all trades player with a farily expensive salary in comparison, likely meaning he was selected specifically to fulfill the constraints, despite not being as cost-effective as the other players. Due to this, he seems to be the weak link in this roster in terms of value for money, so another player could be a better choice if we are willing to relax some constraints.
+
+\section{Answers to Case Questions}
 
 \textbf{Question A.} 
 Formulate an integer linear programming model (ILP) to help the general manager and coach determine which players they should sign and solve it by using the computer.
 
 \ruler
 
-\textbf{Ans A.}
+\textbf{Answer A.} The ILP model, along with the five players to sign have been displayed in the section above.
 
 \ruler
 
 \vsp
 
 \textbf{Question B.} 
-Is the money provided by the owner sufficient to sign the group of players identified in (A)? If not, reformulate the model so that the available funds are a constratint and the objective is to maximize the average points of the group.
+Is the money provided by the owner sufficient to sign the group of players identified in (A)? If not, reformulate the model so that the available funds are a constraint and the objective is to maximize the average points of the group.
 
 \ruler
 
-\textbf{Ans B.}
+\textbf{Answer B.} As seen in the section above, the total salary of the selected roster is \$52.2 million, whereas the budget is \$50.0 million, thus meaning we do not have enough money to sign this combination of players. The LP reformulation and new solution are presented below.
 
-\section*{Answers to Case Questions}
+\subsection{Question B LP Reformulation}
 
-\section*{Sensitivity Analysis}
+We will keep all the defined variables and vectors as before, and only change the objective function along with the constraints.
+\[
+\begin{aligned}
+\text{maximize} \quad & z=\bm{p}^\top\bm{x}\\
+\text{subject to}\quad
+&\bm{s}^\top\bm{x} \leq 50, \\
+&\bm{x}, \in \{0,1\}^{12}, \\
+&\bm{p}, \bm{s}  \in \mathbb{R}_+^{12}.
+\end{aligned}
+\]
 
-\section*{Insights from Sensitivity Analysis}
+\subsection{Raw CPLEX Output}
+\begin{verbatim}
+solution for: tennessee_pterodactlys_B
+objective: 82.7
+status: OPTIMAL_SOLUTION(2)
+Mack Madonna=1
+Silk Curry=1
+Ramon Dion=1
+Joe Eastcoast=1
+Hiram Grant=1
+\end{verbatim}
+
+\subsection{Interpretation}
+Once again, we have reached a status of an optimal solution, and our objective function (max total points) is 82.7, with five players having a binary value of 1 thus being selected. As prior, tables showing the players' statistics and the aggregate roster stats are presented below.
+
+\begin{table}[h!]
+    \centering
+    \renewcommand{\arraystretch}{1.2} % Adjust vertical spacing
+    \begin{tabular}{rlcccccc}
+        \hline
+        & \textbf{Player} & \textbf{Position} & \textbf{Points} & \textbf{Rebounds} & \textbf{Assists} & \textbf{Minutes} & \textbf{Salary (\$M)} \\
+        \hline
+        % Using the indices from the original table for selected players
+        1 & Mack Madonna    & Back court        & 14.7            & 4.4               & 9.3              & 40.3             & 8.2                   \\
+        3 & Silk Curry      & Back court        & 13.5            & 8.7               & 1.7              & 29.3             & 5.2                   \\
+        4 & Ramon Dion      & Back court        & 27.1            & 7.1               & 4.5              & 42.5             & 16.4                  \\
+        5 & Joe Eastcoast   & Back court        & 18.1            & 7.5               & 5.1              & 41.0             & 14.3                  \\
+        7 & Hiram Grant     & Front court       & 9.3             & 12.2              & 3.5              & 31.5             & 4.7                   \\
+        \hline
+    \end{tabular}
+    \caption{Player Stats for Formulation B}
+    \label{tab:selected_players_B}
+\end{table}
+
+\newpage
+
+\begin{table}[h!]
+    \centering
+    \renewcommand{\arraystretch}{1.2} % Consistent vertical spacing
+    \begin{tabular}{lc}
+        \hline
+        \textbf{Statistic}          & \textbf{Total} \\
+        \hline
+        Max Total Points (Objective) & 82.70          \\
+        Total Salary                & \$48.80M         \\
+        Total Rebounds              & 39.9           \\
+        Total Assists               & 24.1           \\
+        Total Minutes               & 184.6          \\
+        Total Front Court Players   & 1              \\
+        \hline
+    \end{tabular}
+    \caption{Aggregate Stats for Formulation B}
+    \label{tab:team_totals_B}
+\end{table}
+
+\textbf{Notes:} We have kept approximately the same roster, except for replacing Grant Hill with Silk Curry, likely due to the difference in point scoring and salary letting us reach the budget requirements. As a result, our point scoring is slightly up, however the rest of the statistics have slightly suffered, especially the number of rebounds and minutes played. Furthermore, we now have a more unbalanced roster with 4 back court players and only 1 front court player.
+
+\section{Sensitivity Analysis}
+
+
+\section{Insights from Sensitivity Analysis}
 
 \end{document}
