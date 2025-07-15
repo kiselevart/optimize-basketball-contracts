@@ -255,6 +255,7 @@ Barry Bird=0.111
 
 \newpage
 \subsection{Interpretation}
+Below is a table of the players with non-zero contribution values, along with their original raw stats, contribution fraction unaccounted for.
 \begin{table}[h!]
     \centering
     \begin{tabular}{rllcccccc}
@@ -273,10 +274,33 @@ Barry Bird=0.111
         11 & Barry Bird      & 0.111                 & Front court       & 24.8            & 8.6               & 6.9              & 42.6             & 19.5                  \\
         \hline
     \end{tabular}
-    \caption{Player Stats for LP Relaxation}
+    \caption{Raw Player Stats for LP Relaxation}
     \label{tab:selected_players_LP}
 \end{table}
 
+Below is a table of the players with the same logic, except that all of their values are scaled by their contribution, so (player stat) * (player contribution).
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{rlccccccc}
+        \hline
+        & \textbf{Player} & \textbf{Contrib} & \textbf{Pos} & \textbf{Pts} & \textbf{Rbds} & \textbf{Asts} & \textbf{Mins} & \textbf{Salary (\$M)} \\
+        \hline
+        1  & Mack Madonna    & 1.000            & Back court   & 14.70        & 4.40          & 9.30          & 40.30         & 8.20                  \\
+        2  & Darrell Boards  & 0.151            & Front court  & 1.90         & 1.60          & 0.32          & 5.21          & 0.98                  \\
+        3  & Silk Curry      & 1.000            & Back court   & 13.50        & 8.70          & 1.70          & 29.30         & 5.20                  \\
+        4  & Ramon Dion      & 1.000            & Back court   & 27.10        & 7.10          & 4.50          & 42.50         & 16.40                 \\
+        7  & Hiram Grant     & 0.656            & Front court  & 6.10         & 8.00          & 2.30          & 20.67         & 3.08                  \\
+        8  & Antoine Roadman & 0.647            & Front court  & 6.60         & 8.15          & 1.16          & 28.72         & 4.60                  \\
+        9  & Fred Westcoast  & 0.435            & Front court  & 7.35         & 1.09          & 4.96          & 18.57         & 6.87                  \\
+        11 & Barry Bird      & 0.111            & Front court  & 2.75         & 0.95          & 0.77          & 4.73          & 2.16                  \\
+        \hline
+    \end{tabular}
+    \caption{Contribution Accounted Player Stats for LP Relaxation}
+    \label{tab:player_contributions_LP}
+\end{table}
+
+Below is the aggregate statistics for the LP relaxation. Note that since we are allowed to use fractions of players, we are now able to perfectly reach the required constraints allowing us to fully minimize the cost and reach below the allocated \$50.00 million budget.
 \begin{table}[h!]
     \centering
     \renewcommand{\arraystretch}{1.2} % Consistent vertical spacing
@@ -285,17 +309,265 @@ Barry Bird=0.111
         \textbf{Statistic}          & \textbf{Total} \\
         \hline
         Total Salary (Objective)    & \$47.49M         \\ % Objective directly from CPLEX output
-        Total Points                & 80.00          \\ % Calculated: (1*14.7) + (0.151*12.6) + (1*13.5) + (1*27.1) + (0.656*9.3) + (0.647*10.2) + (0.435*16.9) + (0.111*24.8) = 80.00 (approx)
-        Total Rebounds              & 40.00          \\ % Calculated: (1*4.4) + (0.151*10.6) + (1*8.7) + (1*7.1) + (0.656*12.2) + (0.647*12.6) + (0.435*2.5) + (0.111*8.6) = 40.00 (approx)
-        Total Assists               & 25.00          \\ % Calculated: (1*9.3) + (0.151*2.1) + (1*1.7) + (1*4.5) + (0.656*3.5) + (0.647*1.8) + (0.435*11.4) + (0.111*6.9) = 25.00 (approx)
-        Total Minutes               & 190.00         \\ % Calculated: (1*40.3) + (0.151*34.5) + (1*29.3) + (1*42.5) + (0.656*31.5) + (0.647*44.4) + (0.435*42.7) + (0.111*42.6) = 190.00 (approx)
-        Total Front Court Players   & 2.00           \\ % Calculated: (0.151*1) + (0.656*1) + (0.647*1) + (0.435*1) + (0.111*1) = 2.00 (approx)
-        Total Number of Players     & 5.00           \\ % Calculated: Sum of all contributions (1+0.151+1+1+0.656+0.647+0.435+0.111) = 5.00
+        Total Points                & 80.00          \\ 
+        Total Rebounds              & 40.00          \\ 
+        Total Assists               & 25.00          \\ 
+        Total Minutes               & 190.00         \\
+        Total Front Court Players   & 2.00           \\ 
+        Total Number of Players     & 5.00           \\ 
         \hline
     \end{tabular}
     \caption{Aggregated Stats for LP Relaxation}
     \label{tab:team_totals_LP}
 \end{table}
+
+\newpage
+
+\subsection{Objective Coefficient Sensitivity Analysis (LP Relaxation)}
+
+The following sensitivity ranges indicate how much each player's salary can change before the current optimal basis of the LP relaxation solution changes. These ranges are critical for understanding the robustness of our player selection decisions under salary fluctuations.
+
+\begin{table}[h!]
+    \centering
+    \label{tab:salary_sensitivity_lp}
+    \begin{tabular}{lcccccc}
+        \hline
+        \textbf{Player} & \textbf{Current} & \textbf{Lower} & \textbf{Upper} & \textbf{Allowable} & \textbf{Allowable} \\
+                       & \textbf{Salary (\$M)} & \textbf{Bound (\$M)} & \textbf{Bound (\$M)} & \textbf{Decrease} & \textbf{Increase} \\
+        \hline
+        Mack Madonna    & 8.20  & $-\infty$ & 13.90 & $\infty$ & 5.70 \\
+        Darrell Boards  & 6.50  & 5.29      & 7.04  & 1.21     & 0.54 \\
+        Silk Curry      & 5.20  & $-\infty$ & 6.60  & $\infty$ & 1.40 \\
+        Ramon Dion      & 16.40 & $-\infty$ & 20.48 & $\infty$ & 4.08 \\
+        Joe Eastcoast   & 14.30 & 12.90     & 22.31 & 1.40     & 8.01 \\
+        Abdul Famous    & 23.50 & 14.51     & $+\infty$ & 8.99 & $\infty$ \\
+        Hiram Grant     & 4.70  & 3.98      & 6.38  & 0.72     & 1.68 \\
+        Antoine Roadman & 7.10  & 4.37      & 8.73  & 2.73     & 1.63 \\
+        Fred Westcoast  & 15.80 & 5.45      & 17.71 & 10.35    & 1.91 \\
+        Magic Jordan    & 26.40 & 18.39     & $+\infty$ & 8.01 & $\infty$ \\
+        Barry Bird      & 19.50 & 17.91     & 22.90 & 1.59     & 3.40 \\
+        Grant Hall      & 8.60  & 7.69      & $+\infty$ & 0.91 & $\infty$ \\
+        \hline
+    \end{tabular}
+    \caption{Salary Sensitivity Ranges for Players}
+\end{table}
+
+\subsection{Interpretation of Sensitivity Analysis}
+
+\subsubsection{Value for Money Players}
+Players with lower bounds of $-\infty$ (Mack Madonna, Silk Curry, and Ramon Dion) represent exceptional value propositions. These players have maximum contribution values (1.00). Due to this, a salary decrease wouldn't increase their contribution rating, it is already at its maximum (but would make them \textit{even more} value for money). Their performance-to-cost ratios are so favorable that they remain optimal full selections even with significant salary inreases. As an example, even if Mack Madonna's salary was up to \$5.70 million dollars higher, he would still be selected with a contribution of 1.00, therefore signed.
+
+\subsubsection{Overpriced Players}
+Players with upper bounds of $+\infty$ (Abdul Famous, Magic Jordan, and Grant Hall) are players which were not selected by the model. This means that their salary is currently too high to justify their statistics, thus explaining the infinite increase: it doesn't matter if their salary increases, they are already not picked. It would take a salary decrease for them to have a non-zero contribution value. As an example, Magic Jordan would have to have an \$8.01 million dollar salary decrease to even be considered for contributing.
+
+\subsubsection{Average Value Players}
+Players with finite bounds on both sides (Darrell Boards, Joe Eastcoast, Hiram Grant, Antoine Roadman, Fred Westcoast, and Barry Bird) represent marginal decisions in the current solution. These players have moderate contribution values, and their selection is sensitive to salary changes in both directions. As an example, if Barry Bird's salary dropped by \$1.59 million, his contribution would increase. On the other hand, if his salary increases by \$3.40 million, his contibution would decrease.
+
+\vsp
+
+\subsection{RHS and Shadow Price Sensitivity Analysis (LP Relaxation)}
+
+The sensitivity analysis for the right-hand side (RHS) values provides crucial insights into how changes in constraint requirements affect the optimal solution. Below are the sensitivity ranges for each constraint's RHS value, along with their shadow prices, in the context of the LP relaxation solution. These ranges indicate how much a constraint's RHS can change before the optimal basis of the LP solution changes, while the shadow price represents the change in the optimal objective value for a one-unit increase in the RHS.
+
+\subsubsection{Sensitivity Analysis Results}
+
+\begin{table}[h!]
+    \centering
+    \label{tab:rhs_sensitivity_lp}
+    \begin{tabular}{lccccc}
+        \hline
+        \textbf{Constraint} & \textbf{Current RHS} & \textbf{Shadow Price} & \textbf{Lower Bound} & \textbf{Upper Bound} & \textbf{Width} \\
+        \hline
+        Five Players        & 5.00                 & -11.7277              & 5.00                 & 5.05                 & 0.05                 \\
+        Points              & 80.00                & 0.7010                & 78.57                & 91.51                & 12.94                \\
+        Rebounds            & 40.00                & 0.1700                & 38.96                & 40.48                & 1.52                 \\
+        Assists             & 25.00                & 0.6340                & 23.10                & 25.42                & 2.32                 \\
+        Minutes             & 190.00               & 0.2154                & 182.81               & 193.76               & 10.95                \\
+        Front Court         & 2.00                 & -1.1693               & 1.82                 & 2.00                 & 0.18                 \\
+        \hline
+    \end{tabular}
+    \caption{RHS Sensitivity Ranges and Shadow Prices for Constraints}
+\end{table}
+
+\subsubsection{Interpretation of Results}
+
+\textbf{Roster Allocation Requirements (Negative Shadow Prices)}
+
+Constraints with negative shadow prices represent structural requirements where relaxing the constraint would decrease the total cost:
+
+\vsp
+
+\textbf{Five Players Constraint (Most Critical)}
+\begin{itemize}
+    \item Currently at its lower bound (5.00), indicating this constraint is actively limiting the solution
+    \item Extremely narrow sensitivity range (0.05), making it highly sensitive to changes
+    \item Shadow price of -\$11.7277 million suggests that allowing a sixth player would dramatically reduce costs
+    \item This represents the most significant opportunity for cost reduction, though it requires changing the fundamental roster structure
+\end{itemize}
+
+\textbf{Front Court Constraint (Structurally Important)}
+\begin{itemize}
+    \item Currently at its upper bound (2.00), indicating maximum utilization of front court slots
+    \item Narrow sensitivity range (0.18), showing moderate sensitivity
+    \item Shadow price of -\$1.1693 million indicates that requiring an additional front court player would reduce costs
+    \item This suggests the current front court requirement may be artificially constraining optimal roster construction
+\end{itemize}
+
+\textbf{Performance Requirements (Positive Shadow Prices)}
+
+Constraints with positive shadow prices represent performance standards where increasing requirements would increase costs:
+
+\vsp
+
+\textbf{Points Constraint (Highest Value)}
+\begin{itemize}
+    \item Shadow price of \$0.7010 million per additional point required
+    \item Substantial upper bound allowance (11.51 points), providing flexibility for increased requirements
+    \item Limited lower bound flexibility (1.43 points), suggesting current requirement is near optimal minimum
+    \item This represents the most expensive performance metric to improve
+\end{itemize}
+
+\textbf{Assists Constraint (High Value)}
+\begin{itemize}
+    \item Shadow price of \$0.6340 million per additional assist required
+    \item Moderate sensitivity range (2.32), with limited upward flexibility
+    \item Second-highest impact on cost among performance metrics
+    \item Increasing assist requirements would significantly impact roster costs
+\end{itemize}
+
+\textbf{Minutes Constraint (Moderate Impact)}
+\begin{itemize}
+    \item Shadow price of \$0.2154 million per additional minute required
+    \item Good flexibility in both directions (range of 10.95 minutes)
+    \item Relatively low cost impact compared to other performance metrics
+    \item Provides reasonable room for adjustment without major cost implications
+\end{itemize}
+
+\textbf{Rebounds Constraint (Least Constraining)}
+\begin{itemize}
+    \item Lowest shadow price of \$0.1700 million per additional rebound required
+    \item Small sensitivity range (1.52), but lowest cost impact
+    \item Represents the most cost-effective performance metric to improve
+    \item Current requirement appears well-calibrated to available talent
+\end{itemize}
+
 \section{Insights from Sensitivity Analysis}
+
+The sensitivity analysis reveals several critical insights about the optimal roster construction strategy and provides valuable guidance for decision-making under uncertainty. By examining both objective coefficient and RHS sensitivity ranges, we can identify key vulnerabilities, opportunities, and strategic priorities.
+
+\subsection{Player Value Tiers and Selection Strategy}
+
+The objective coefficient sensitivity analysis reveals three distinct tiers of players, each requiring different management approaches:
+
+\subsubsection{Elite Value Players (Infinite Decrease Tolerance)}
+Mack Madonna, Silk Curry, and Ramon Dion represent the foundation of any optimal roster. These players demonstrate exceptional value propositions with maximum contribution values (1.00) and infinite tolerance for salary decreases. Their performance-to-cost ratios are so favorable that they remain essential selections even with substantial salary increases. This tier provides the greatest stability and should be prioritized in contract negotiations.
+
+\textbf{Strategic Implications:}
+\begin{itemize}
+    \item These players represent the core of the optimal roster and should be secured at current or higher salaries
+    \item Their robust value propositions provide insurance against salary inflation
+    \item Focus retention efforts on these players as they offer the best long-term value
+\end{itemize}
+
+\subsubsection{Marginal Value Players (Finite Sensitivity Ranges)}
+Darrell Boards, Joe Eastcoast, Hiram Grant, Antoine Roadman, Fred Westcoast, and Barry Bird occupy the middle tier, with selection decisions sensitive to salary fluctuations in both directions. These players represent tactical flexibility but also vulnerability to market changes. Their finite sensitivity ranges indicate that their roster spots are contestable and require active management.
+
+\textbf{Strategic Implications:}
+\begin{itemize}
+    \item These players require careful salary monitoring and negotiation
+    \item Their roster positions are vulnerable to market salary increases
+    \item Consider developing contingency plans for players with narrow sensitivity ranges
+    \item Focus on securing favorable long-term contracts to minimize salary volatility risk
+\end{itemize}
+
+\subsubsection{Overpriced Players (Infinite Increase Tolerance)}
+Abdul Famous, Magic Jordan, and Grant Hall currently represent poor value propositions, with infinite tolerance for salary increases indicating they are already priced out of consideration. However, their finite decrease requirements suggest potential value if salaries decline sufficiently.
+
+\textbf{Strategic Implications:}
+\begin{itemize}
+    \item Monitor these players for salary reductions that could make them viable
+    \item Consider these players as potential mid-season acquisitions if market conditions change
+    \item Use their current exclusion to benchmark acceptable salary levels for similar player profiles
+\end{itemize}
+
+\subsection{Constraint Management and Flexibility}
+
+The RHS sensitivity analysis reveals critical insights about constraint management and potential rule modifications:
+
+\subsubsection{Structural Constraints Create Artificial Limitations}
+The five-player constraint emerges as the most significant cost driver, with a shadow price of -\$11.73 million and extremely narrow sensitivity range (0.05). This suggests that the current roster size limitation is artificially constraining optimal solutions and represents the largest opportunity for cost reduction.
+
+Similarly, the front court constraint shows a shadow price of -\$1.17 million with a narrow range (0.18), indicating that positional requirements may be suboptimal from a cost-efficiency perspective.
+
+\textbf{Strategic Implications:}
+\begin{itemize}
+    \item Advocate to sign more than 5 free agents
+    \item Consider the true cost of positional requirements when evaluating roster construction
+    \item These constraints represent the highest-value areas for rule negotiation or modification
+\end{itemize}
+
+\subsubsection{Performance Constraints Show Varying Cost Sensitivity}
+The analysis reveals a clear hierarchy of performance constraint costs:
+
+\begin{enumerate}
+    \item \textbf{Points (\$0.70M per unit):} Most expensive to improve, but offers substantial upward flexibility
+    \item \textbf{Assists (\$0.63M per unit):} High cost with limited flexibility
+    \item \textbf{Minutes (\$0.22M per unit):} Moderate cost with good flexibility
+    \item \textbf{Rebounds (\$0.17M per unit):} Least expensive to improve
+\end{enumerate}
+
+\textbf{Strategic Implications:}
+\begin{itemize}
+    \item Focus performance improvements on rebounding for maximum cost efficiency
+    \item Points requirements should be carefully calibrated given their high cost
+    \item Minutes allocation provides good tactical flexibility without major cost implications
+    \item Assists requirements represent a high-cost, low-flexibility constraint
+\end{itemize}
+
+\subsection{Risk Management and Robustness}
+
+The sensitivity analysis identifies several risk factors that require active management:
+
+\subsubsection{High-Risk Constraints}
+Constraints with narrow sensitivity ranges pose the greatest risk for basis changes:
+\begin{itemize}
+    \item Five Players constraint (0.05 range) - Extremely sensitive
+    \item Front Court constraint (0.18 range) - Highly sensitive
+    \item Rebounds constraint (1.52 range) - Moderately sensitive
+\end{itemize}
+
+\subsubsection{Player Selection Vulnerabilities}
+Players with narrow salary tolerance ranges represent selection vulnerabilities:
+\begin{itemize}
+    \item Darrell Boards (decrease: \$1.21M, increase: \$0.54M)
+    \item Hiram Grant (decrease: \$0.72M, increase: \$1.68M)
+    \item Grant Hall (decrease: \$0.91M, infinite increase)
+\end{itemize}
+
+\subsection{Optimization Opportunities}
+
+The sensitivity analysis reveals several optimization opportunities:
+
+\subsubsection{Immediate Cost Reduction Potential}
+\begin{itemize}
+    \item Roster size flexibility could reduce costs by \$11.73M per additional player
+    \item Front court requirement relaxation could reduce costs by \$1.17M
+    \item These represent the highest-value structural modifications
+\end{itemize}
+
+\subsubsection{Performance Enhancement Strategy}
+\begin{itemize}
+    \item Focus on rebounding improvements for maximum cost efficiency
+    \item Leverage points constraint flexibility for strategic performance increases
+    \item Use minutes allocation as a tactical adjustment tool
+\end{itemize}
+
+\subsubsection{Contract Negotiation Priorities}
+\begin{itemize}
+    \item Prioritize long-term contracts for elite value players
+    \item Monitor marginal players for salary movement opportunities
+    \item Track overpriced players for potential value emergence
+\end{itemize}
+
 
 \end{document}
